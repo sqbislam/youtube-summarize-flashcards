@@ -163,7 +163,6 @@ class YoutubeProcessor:
             
         # Convert each JSON string in batch_concepts to a Python Dict
         processed_concepts = [json.loads(concept) for concept in batch_concepts]
-        logging.info(processed_concepts)
         
         logging.info(f"Total Analysis Cost: ${batch_cost}")    
         return processed_concepts

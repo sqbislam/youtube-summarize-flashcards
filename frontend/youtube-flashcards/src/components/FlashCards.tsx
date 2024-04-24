@@ -1,4 +1,4 @@
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardTitle } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -6,15 +6,18 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Button } from "./ui/button";
+import { Trash2 } from "lucide-react";
 
 interface IConcept {
   [v: string]: string;
 }
 interface IFlashCards {
   keyConcepts: IConcept[];
+  discardConcept: (index: number) => void;
 }
 export function FlashCards(props: IFlashCards) {
-  const { keyConcepts } = props;
+  const { keyConcepts, discardConcept } = props;
   return (
     <Carousel className="w-full max-w-sm">
       <CarouselContent>
@@ -28,6 +31,16 @@ export function FlashCards(props: IFlashCards) {
                 <CardContent className="flex aspect-square text-start p-2">
                   <span className="text-lg">{Object.values(data)[0]}</span>
                 </CardContent>
+                <CardFooter>
+                  <Button
+                    size="icon"
+                    variant="outline"
+                    className="mx-auto"
+                    onClick={() => discardConcept(index)}
+                  >
+                    <Trash2 color="red" />
+                  </Button>
+                </CardFooter>
               </Card>
             </div>
           </CarouselItem>

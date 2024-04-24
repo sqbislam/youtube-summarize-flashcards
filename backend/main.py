@@ -24,7 +24,7 @@ app.add_middleware(
 
 genai_processor = GeminiProcessor(
         model_name = "gemini-pro",
-        project = "ai-dev-cqc-q1-2024"
+        project = "video-summarizer-421310"
     )
 
 @app.post("/analyze_video")
@@ -45,7 +45,7 @@ def analyze_video(request: VideoAnalysisRequest):
             unique_concepts[key] = value
     
     # Reconstruct
-    key_concepts_list = [{key: value} for key, value in concept_dict.items()]
+    key_concepts_list = [{key: value} for key, value in unique_concepts.items()]
     
     return {
         "key_concepts": key_concepts_list
@@ -79,7 +79,17 @@ def analyze_video(request: VideoAnalysisRequest):
         'title':title,
         'total_size':total_size
     }
+
+@app.post("/summarize_video")
+def summarize_video(request: VideoAnalysisRequest):
+     # Doing the summarization
+    processor = YoutubeProcessor(genai_processor = genai_processor)
+    result = processor.retrieve_youtube_documents(str(request.youtube_link), verbose=True)
+    summary = genai_processor.generate_document_summary(result)
+    return{'summary':summary}
     
+    
+        
 # Check health of backend connection
 @app.get("/root")
 def health():

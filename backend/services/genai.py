@@ -7,6 +7,7 @@ from langchain.prompts import PromptTemplate
 from tqdm import tqdm
 import json
 import logging
+import re
 
 # Configure log
 logging.basicConfig(level=logging.INFO)
@@ -65,7 +66,27 @@ class YoutubeProcessor:
             logging.info(f"{author}\n{length}\n{title}\n{total_size}\n{total_billable_characters}")
         
         return result
+    
+    def clean_json_string(self, json_str):
+        """Clean JSON String capturing only the value between curly braces
 
+        Args:
+            json_str (str): uncleaned string 
+
+        Returns:
+            str: cleaned string
+        """
+        # Define a regex pattern to match everything before and after the curly braces
+        pattern = r'^.*?({.*}).*$'
+        # Use re.findall to extract the JSON part from the string
+        matches = re.findall(pattern, json_str, re.DOTALL)
+        if matches:
+            # If there's a match, return the first one (should be the JSON)
+            return matches[0]
+        else:
+            # If no match is found, return None
+            return None
+        
     def find_key_concepts(self, documents:list, sample_size: int = 0, verbose = False):
         # iterate through all documents of group size N and find key concepts
         if sample_size > len(documents):
@@ -105,7 +126,8 @@ class YoutubeProcessor:
                 Find and define key concepts or terms found in the text:
                 {text}
                 
-                Respond in the following format as a JSON object without any backticks separating each concept with a comma:
+                Respond in the following format as a JSON object without any backticks or '\n' character. Separate each concept with a comma do not include a title or any extra words. {{Just respond in JSON object format as follows do NOT respond in any other format. Strictly maintain the following response format:}}
+                
                 {{"concept": "definition", "concept": "definition", ...}}
                 """,
                 input_variables=["text"]
@@ -116,7 +138,10 @@ class YoutubeProcessor:
 
             # Run chain
             output_concept = chain.invoke({"text": group_content})
-            batch_concepts.append(output_concept)
+            # Validate JSON and keep cleaned JSON Output
+            cleaned_chain = self.clean_json_string(output_concept)
+            if cleaned_chain:
+                batch_concepts.append(cleaned_chain)
             
             # Post Processing Observation
             if verbose:
@@ -138,6 +163,7 @@ class YoutubeProcessor:
             
         # Convert each JSON string in batch_concepts to a Python Dict
         processed_concepts = [json.loads(concept) for concept in batch_concepts]
+        logging.info(processed_concepts)
         
         logging.info(f"Total Analysis Cost: ${batch_cost}")    
         return processed_concepts

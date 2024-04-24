@@ -132,8 +132,12 @@ dist
 # exclude backend env
 backend/env/
 backend/__pycache__/
+backend/services/__pycache__/
+backend/auth.json
 
 # Exclude admin files
 _text-to-json.py
 tasks.txt
 ai-data.json
+video-summarizer-421310-6024ef0be697.json:Zone.Identifier
+backend/services/__pycache__/genai.cpython-310.pyc

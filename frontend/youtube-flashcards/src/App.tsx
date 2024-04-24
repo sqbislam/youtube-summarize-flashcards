@@ -6,13 +6,17 @@ import Spinner from "./components/ui/spinner";
 import { FlashCards } from "./components/FlashCards";
 import { SummaryCard } from "./components/SummaryCard";
 import { MetadataCard } from "./components/MetaDataCard";
-import { getYoutubeThumbnail, isValidYoutubeLink } from "./lib/utils";
+import {
+  checkValueInLocalStorage,
+  isValidYoutubeLink,
+  setValueInLocalStorage,
+} from "./lib/utils";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { ModeToggle } from "./components/ThemeToggler";
 import { Youtube } from "lucide-react";
 import { YoutubeVideoCard } from "./components/YoutubeVideoCard";
 
-type DataType = "Metadata" | "Summary" | "Flashcards" | "";
+export type ResponseDataType = "Metadata" | "Summary" | "Flashcards" | "";
 
 const apiRoutes = {
   "": "root",
@@ -23,10 +27,12 @@ const apiRoutes = {
 
 function App() {
   const [responseData, setResponseData] = useState<any>();
-  const [dataType, setDataType] = useState<DataType>("");
+  const [ResponseDataType, setResponseDataType] =
+    useState<ResponseDataType>("");
   const [youtubeLink, setYoutubeLink] = useState("");
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
   const discardConcept = (index: number) => {
     if (
       responseData &&
@@ -41,19 +47,29 @@ function App() {
       }
     }
   };
-  const sendRequest = async (currdataType: DataType) => {
+  const sendRequest = async (currResponseDataType: ResponseDataType) => {
     try {
+      setLoading(true); // Start loading
+      setResponseData(undefined); // Reset State
+      setResponseDataType(currResponseDataType); // Set data type
+      setError(""); // Reset Error if any
       // Add check for valid response
-      if (!isValidYoutubeLink(youtubeLink)) {
+      const [videoID, valid] = isValidYoutubeLink(youtubeLink);
+      if (!valid) {
         setError("Please enter a valid youtube link");
         return;
       }
-      setLoading(true); // Start loading
-      setResponseData(undefined); // Reset State
-      setDataType(currdataType); // Set data type
-      setError(""); // Reset Error if any
+      // Check if data is already in local storage
+      const valueInLS = await checkValueInLocalStorage(
+        videoID as any,
+        currResponseDataType
+      );
+      if (videoID && valueInLS) {
+        setResponseData(valueInLS);
+        return;
+      }
       const res = await fetch(
-        `http://localhost:8000/${apiRoutes[currdataType]}`,
+        `http://localhost:8000/${apiRoutes[currResponseDataType]}`,
         {
           method: "POST",
           headers: {
@@ -66,9 +82,12 @@ function App() {
       );
 
       const jsonRes = await res.json();
+      // Set data in localstorage
+      setValueInLocalStorage(videoID as any, jsonRes, currResponseDataType);
       setResponseData(jsonRes);
     } catch (e) {
       console.error("Something went wrong!", e);
+      
       setError("Something went wrong! Please try again");
     } finally {
       setLoading(false);
@@ -124,9 +143,9 @@ function App() {
             <div className="mt-10 max-w-lg">
               {isLoading && <Spinner />}
 
-              {responseData && dataType === "Summary" ? (
+              {responseData && ResponseDataType === "Summary" ? (
                 <SummaryCard summary={responseData?.summary} />
-              ) : responseData && dataType === "Metadata" ? (
+              ) : responseData && ResponseDataType === "Metadata" ? (
                 <MetadataCard data={responseData} />
               ) : (
                 responseData &&

@@ -1,3 +1,4 @@
+import { ResponseDataType } from "@/App";
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
 
@@ -10,9 +11,9 @@ export function isValidYoutubeLink(link:string){
     const p = /^(?:https?:\/\/)?(?:m\.|www\.)?(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))((\w|-){11})(?:\S+)?$/;
     var matches = link.match(p);
     if(matches && matches.length > 0){
-        return true
+        return [matches[1], true]
     }
-    return false;
+    return [undefined, false];
 }
 
 export function formatTime(seconds:number) {
@@ -31,10 +32,6 @@ export function formatTime(seconds:number) {
     return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
 }
 
-
-
-
-
 export const getYoutubeThumbnail = (url:string ) => {
     if (url === null) {
         return '';
@@ -45,4 +42,28 @@ export const getYoutubeThumbnail = (url:string ) => {
     return 'http://img.youtube.com/vi/' + video + '/0.jpg';
 };
 
+export const  getStorageValue = (key:string, defaultValue:string) => {
+  // getting stored value
+  const saved = localStorage.getItem(key);
+  const initial = saved && JSON.parse(saved);
+  return initial || defaultValue;
+}
 
+// Check if response data for video already in LS return the response data
+export const checkValueInLocalStorage = async (videoID:string, dataType:ResponseDataType) =>{
+    const currValue = getStorageValue(videoID, "")
+    if(currValue  !== ""  && currValue.hasOwnProperty(dataType) && currValue[dataType]){
+        return currValue[dataType]
+    }
+    return false
+}
+
+// Set response data to LS for certain datatype
+export const setValueInLocalStorage = async (videoID:string, responseData:any, dataType:ResponseDataType) => {
+    const currValue = getStorageValue(videoID, "")
+    let newValue = {[dataType]: responseData};
+    if(currValue  !== ""){
+        newValue = {...currValue, [dataType]: responseData}
+    }
+    await localStorage.setItem(videoID, JSON.stringify(newValue))
+}

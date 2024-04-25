@@ -8,10 +8,8 @@ import {
 } from "@/components/ui/carousel";
 import { Button } from "./ui/button";
 import { Trash2 } from "lucide-react";
+import { IConcept } from "@/lib/interfaces/utilities";
 
-interface IConcept {
-  [v: string]: string;
-}
 interface IFlashCards {
   keyConcepts: IConcept[];
   discardConcept: (index: number) => void;

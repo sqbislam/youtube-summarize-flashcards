@@ -1,6 +1,8 @@
-import { ResponseDataType } from "@/App";
+
+
 import { type ClassValue, clsx } from "clsx"
 import { twMerge } from "tailwind-merge"
+import { ResponseDataType } from "./interfaces/utilities";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))

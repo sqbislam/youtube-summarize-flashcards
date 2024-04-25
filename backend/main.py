@@ -1,22 +1,25 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, HttpUrl
-from fastapi.middleware.cors import CORSMiddleware
 
+from http.client import HTTPException
+from typing import Any
+from fastapi import FastAPI, Request, Response
+import httpx
+from pydantic import AnyHttpUrl
+from starlette.middleware.cors import CORSMiddleware
+
+from models import VideoAnalysisRequest
 from services.genai import (
     YoutubeProcessor,
     GeminiProcessor
 )
 
-class VideoAnalysisRequest(BaseModel):
-    youtube_link: HttpUrl
-    # advanced settings
+
 
 app = FastAPI()
-
+origins = ["http://localhost:5173", "http://localhost","http://127.0.0.1:5173", "http://127.0.0.1", "http://localhost:8000", "http://localhost"]
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -27,7 +30,7 @@ genai_processor = GeminiProcessor(
         project = "video-summarizer-421310"
     )
 
-@app.post("/analyze_video")
+@app.post('/analyze_video')
 def analyze_video(request: VideoAnalysisRequest):
     # Doing the analysis
     processor = YoutubeProcessor(genai_processor = genai_processor)
@@ -50,8 +53,6 @@ def analyze_video(request: VideoAnalysisRequest):
     return {
         "key_concepts": key_concepts_list
     }
-
-
 
 @app.post("/video_metadata")
 def analyze_video(request: VideoAnalysisRequest):
@@ -94,3 +95,5 @@ def summarize_video(request: VideoAnalysisRequest):
 @app.get("/root")
 def health():
     return {"status":"ok"}
+
+

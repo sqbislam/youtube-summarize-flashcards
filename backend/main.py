@@ -1,9 +1,5 @@
 
-from http.client import HTTPException
-from typing import Any
-from fastapi import FastAPI, Request, Response
-import httpx
-from pydantic import AnyHttpUrl
+from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
 from models import VideoAnalysisRequest

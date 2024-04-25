@@ -2,7 +2,7 @@ import "./App.css";
 import { ThemeProvider } from "./providers/ThemeProvider";
 import { ModeToggle } from "./components/ThemeToggler";
 import MainPage from "./components/MainPage";
-import { Landing } from "./Landing";
+import { Landing } from "./components/Landing";
 
 function App() {
   return (

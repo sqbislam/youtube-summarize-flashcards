@@ -77,14 +77,14 @@ function MainPage() {
     setYoutubeLink(e.target.value);
   };
   return (
-    <section>
-      <h1 className="text-2xl font-bold">
-        Youtube Flashcards{" "}
-        <span>
-          <Youtube color="red" className="inline-block" />
-        </span>
-      </h1>
-      <div className="flex flex-col w-full justify-center items-center mt-10">
+    <section className="mx-auto max-w-7xl px-4 py-12">
+      <div className="flex flex-col w-full justify-center items-center">
+        <h1 className="text-2xl font-bold my-10">
+          Youtube Flashcards{" "}
+          <span>
+            <Youtube color="red" className="inline-block" />
+          </span>
+        </h1>
         <div className="flex flex-col w-full max-w-sm items-center space-x-2">
           <Input
             type="Youtube link"

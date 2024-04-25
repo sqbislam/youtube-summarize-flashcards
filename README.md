@@ -7,7 +7,10 @@ An AI powered Youtube summarizer that converts complex youtube video content int
 
 For now run in local development environment by cloning project. Deployed at [https://youtube-flashcards.vercel.app/](https://youtube-flashcards.vercel.app/)
 
+Demo
+
 ![Demo Image](./frontend/youtube-flashcards/src/assets/sample.png)
+
 
 ### Technologies
 - Gemini LLM

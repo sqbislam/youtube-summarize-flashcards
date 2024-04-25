@@ -11,7 +11,7 @@ from services.genai import (
 
 
 app = FastAPI()
-origins = ["http://localhost:5173", "http://localhost","http://127.0.0.1:5173", "http://127.0.0.1", "http://localhost:8000", "http://localhost"]
+origins = ["http://localhost:5173", "http://localhost","http://127.0.0.1:5173", "http://127.0.0.1", "http://localhost:8000", "http://localhost", "https://youtube-flashcards-nmpds37be-sqb101gmailcoms-projects.vercel.app", "https://youtube-flashcards.vercel.app"]
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,

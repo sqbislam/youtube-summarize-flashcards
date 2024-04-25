@@ -20,7 +20,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
+# Initiate GenAI processor
 genai_processor = GeminiProcessor(
         model_name = "gemini-pro",
         project = "video-summarizer-421310"

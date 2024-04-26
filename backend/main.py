@@ -18,7 +18,7 @@ MESSAGE_STREAM_RETRY_TIMEOUT = 20
 MESSAGE_STREAM_DELAY = 10
 
 app = FastAPI()
-origins = ["http://localhost:5173", "http://localhost","http://127.0.0.1:5173", "http://127.0.0.1", "http://localhost:8000", "http://localhost", "https://youtube-flashcards-nmpds37be-sqb101gmailcoms-projects.vercel.app", "https://youtube-flashcards.vercel.app"]
+origins = ["https://youtube-flashcards-ecztinewf-sqb101gmailcoms-projects.vercel.app","http://localhost:5173", "http://localhost","http://127.0.0.1:5173", "http://127.0.0.1", "http://localhost:8000", "http://localhost", "https://youtube-flashcards-nmpds37be-sqb101gmailcoms-projects.vercel.app", "https://youtube-flashcards.vercel.app"]
 # Configure CORS
 app.add_middleware(
     CORSMiddleware,

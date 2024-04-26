@@ -10,6 +10,8 @@ import json
 import logging
 import re
 
+from lib.utils import clean_json_string, extract_json_objects
+
 # Configure log
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -87,25 +89,7 @@ class YoutubeProcessor:
         
         return result
     
-    def clean_json_string(self, json_str):
-        """Clean JSON String capturing only the value between curly braces
-
-        Args:
-            json_str (str): uncleaned string 
-
-        Returns:
-            str: cleaned string
-        """
-        # Define a regex pattern to match everything before and after the curly braces
-        pattern = r'^.*?({.*}).*$'
-        # Use re.findall to extract the JSON part from the string
-        matches = re.findall(pattern, json_str, re.DOTALL)
-        if matches:
-            # If there's a match, return the first one (should be the JSON)
-            return matches[0]
-        else:
-            # If no match is found, return None
-            return None
+    
         
     def find_key_concepts(self, documents:list, sample_size: int = 0, verbose = False):
         # iterate through all documents of group size N and find key concepts
@@ -148,7 +132,7 @@ class YoutubeProcessor:
                 
                 Respond in the following format as a JSON object without any backticks or '\n' character. Separate each concept with a comma do not include a title or any extra words. {{Just respond in JSON object format as follows do NOT respond in any other format. Strictly maintain the following response format:}}
                 
-                {{"concept": "definition", "concept": "definition", ...}}
+                {{"key concept": "definition", "key concept": "definition", ...}}
                 """,
                 input_variables=["text"]
             )
@@ -159,7 +143,7 @@ class YoutubeProcessor:
             # Run chain
             output_concept = chain.invoke({"text": group_content})
             # Validate JSON and keep cleaned JSON Output
-            cleaned_chain = self.clean_json_string(output_concept)
+            cleaned_chain = clean_json_string(output_concept)
             if cleaned_chain:
                 batch_concepts.append(cleaned_chain)
             
@@ -168,7 +152,7 @@ class YoutubeProcessor:
                 total_input_char = len(group_content)
                 total_input_cost = (total_input_char/1000) * 0.000125
                 
-                logging.info(f"Running chain on {len(group)} documents")
+                logging.info(f"Running chain on {len(group)} documents") 
                 logging.info(f"Total input characters: {total_input_char}")
                 logging.info(f"Total cost: {total_input_cost}")
                 
@@ -187,3 +171,67 @@ class YoutubeProcessor:
         logging.info(f"Total Analysis Cost: ${batch_cost}")    
         return processed_concepts
     
+    
+    def find_key_concepts_as_stream(self, documents:list, sample_size: int = 0, verbose = False):
+        # iterate through all documents of group size N and find key concepts
+        if sample_size > len(documents):
+            raise ValueError("Group size is larger than the number of documents")
+        
+        # Optimize sample size given no input
+        if sample_size == 0:
+            sample_size = len(documents) // 5
+            if verbose: logging.info(f"No sample size specified. Setting number of documents per sample as 5. Sample Size: {sample_size}")
+
+        # Find number of documents in each group
+        num_docs_per_group = len(documents) // sample_size + (len(documents) % sample_size > 0)
+        
+        # Check thresholds for response quality 
+        if num_docs_per_group > 10:
+            raise ValueError("Each group has more than 10 documents and output quality will be degraded significantly. Increase the sample_size parameter to reduce the number of documents per group.")
+        elif num_docs_per_group > 5:
+            logging.warn("Each group has more than 5 documents and output quality is likely to be degraded. Consider increasing the sample size.")
+        
+        # Split the document in chunks of size num_docs_per_group
+        groups = [documents[i:i+num_docs_per_group] for i in range(0, len(documents), num_docs_per_group)]
+        
+        batch_concepts =[]
+        final_string = ""
+        logger.info("Finding key concepts...")
+        for group in tqdm(groups):
+            # Combine content of documents per group
+            group_content = ""
+            
+            for doc in group:
+                group_content += doc.page_content
+            
+            # Prompt for finding concepts 
+            prompt = PromptTemplate(
+                template = """
+                Find and define key concepts or terms found in the text:
+                {text}
+                
+                Respond in the following format as a JSON object without any backticks or '\n' character. Separate each concept with a comma do not include a title or any extra words. {{Just respond in JSON object format as follows do NOT respond in any other format. Strictly maintain the following response format:}}
+                
+                {{"concept": "definition", "concept": "definition", ...}}
+                """,
+                input_variables=["text"]
+            )
+            
+            # Create chain
+            chain = prompt | self.GeminiProcessor.model
+            
+          
+            for output_concept in chain.stream({"text": group_content}):
+                # Validate JSON and keep cleaned JSON Output
+                final_string += output_concept
+                cleaned_chain = extract_json_objects(final_string[1:])
+               
+                if cleaned_chain:
+                    batch_concepts = cleaned_chain
+                
+                if(batch_concepts):
+                    yield str(batch_concepts)
+                else:
+                    yield str([])
+                
+      

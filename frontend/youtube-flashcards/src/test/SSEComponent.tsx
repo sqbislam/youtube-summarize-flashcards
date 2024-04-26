@@ -6,21 +6,31 @@ function SSEComponent() {
 
   const handleButtonClick = () => {
     // Create an EventSource object to connect to the SSE endpoint
-    const eventSource = new EventSource("http://localhost:8000/events");
+    const eventSource = new EventSource(
+      `${
+        import.meta.env.VITE_PRODUCTION_BACKEND_API_PATH
+      }/test-stream/mE7IDf2SmJg`
+    );
 
     // Add event listener to handle incoming events
-    eventSource.addEventListener("message", handleSSE);
+    eventSource.onmessage = handleSSE;
+
+    eventSource.addEventListener("end_event", function () {
+      eventSource.close();
+    });
 
     // Update state to indicate connection is established
     setIsConnected(true);
+    // terminating the connection on component unmount
+    return () => eventSource.close();
   };
 
   // Function to handle SSE messages
   const handleSSE = (event: MessageEvent<any>) => {
     // Parse the event data
-    const eventData = JSON.parse(event.data);
+    console.debug({ event });
     // Update the progress state with the received data
-    setProgress(eventData);
+    setProgress(event.data);
   };
 
   return (

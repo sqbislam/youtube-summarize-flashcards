@@ -3,6 +3,7 @@ import { ThemeProvider } from "./providers/ThemeProvider";
 import { ModeToggle } from "./components/ThemeToggler";
 import MainPage from "./components/MainPage";
 import { Landing } from "./components/Landing";
+import SSEComponent from "./test/SSEComponent";
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Landing />
           <MainPage />
         </div>
+        <SSEComponent />
       </ThemeProvider>
     </>
   );

@@ -5,6 +5,7 @@ from vertexai.generative_models import GenerativeModel
 from langchain.chains.summarize import load_summarize_chain
 from langchain.prompts import PromptTemplate
 from tqdm import tqdm
+from langchain.chains.llm import LLMChain
 import json
 import logging
 import re
@@ -15,26 +16,45 @@ logger = logging.getLogger(__name__)
 
 class GeminiProcessor:
     def __init__(self, model_name, project):
+    
         self.model = VertexAI(model_name=model_name, project=project)
         
     def generate_document_summary(self, documents: list, **args):
         
-        chain_type = "map_reduce" if len(documents) > 10 else "stuff"
+        # chain_type = "map_reduce" if len(documents) > 10 else "stuff"
         
-        chain = load_summarize_chain(
-            llm = self.model,
-            chain_type = chain_type,
-            **args
-        )
+        # chain = load_summarize_chain(
+        #     llm = self.model,
+        #     chain_type = chain_type,
+        #     **args
+        # )
         
-        return chain.run(documents)
+        # Map
+        map_template = """The following is a set of documents
+        {docs}
+        Based on this list of docs, please identify the main themes. Do not answer it to me. Instead write it like a helpful summary article or blog post on the video.
+        Identify all the key points and if possible divide it into meaningful paragraphs
+        Helpful Video Summary:"""
+        map_prompt = PromptTemplate.from_template(map_template)
+        map_chain = LLMChain(llm=self.model, prompt=map_prompt)
+        
+        return map_chain.run(documents)
     
     def count_total_tokens(self, docs: list):
         temp_model = GenerativeModel("gemini-1.0-pro")
         total = 0
         logger.info("Counting total billable characters...")
+       
         for doc in tqdm(docs):
             total += temp_model.count_tokens(doc.page_content).total_billable_characters
+            
+        total_input_char = total
+        total_input_cost = (total_input_char/1000) * 0.000125
+        
+        logging.info(f"Running chain on {len(docs)} documents")
+        logging.info(f"Total input characters: {total_input_char}")
+        logging.info(f"Total cost: {total_input_cost}")
+
         return total
         
     
@@ -137,7 +157,7 @@ class YoutubeProcessor:
             chain = prompt | self.GeminiProcessor.model
 
             # Run chain
-            output_concept = chain.invoke({"text": group_content})
+            output_concept = chain.run({"text": group_content})
             # Validate JSON and keep cleaned JSON Output
             cleaned_chain = self.clean_json_string(output_concept)
             if cleaned_chain:

@@ -81,7 +81,7 @@ def analyze_video(request: VideoAnalysisRequest):
 def summarize_video(request: VideoAnalysisRequest):
      # Doing the summarization
     processor = YoutubeProcessor(genai_processor = genai_processor)
-    result = processor.retrieve_youtube_documents(str(request.youtube_link), verbose=True)
+    result = processor.retrieve_youtube_documents(str(request.youtube_link), verbose=False)
     summary = genai_processor.generate_document_summary(result)
     return{'summary':summary}
     

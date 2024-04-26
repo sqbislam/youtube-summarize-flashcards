@@ -9,7 +9,7 @@ function App() {
     <>
       <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
         <ModeToggle />
-        <div className="w-full h-[100vh] grid grid-cols-1 lg:grid-cols-2 relative">
+        <div className="w-full h-[100vh] grid grid-cols-1  lg:grid-cols-[1fr_2fr] relative">
           <Landing />
           <MainPage />
         </div>

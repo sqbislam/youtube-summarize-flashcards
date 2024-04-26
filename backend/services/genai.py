@@ -155,9 +155,9 @@ class YoutubeProcessor:
             
             # Create chain
             chain = prompt | self.GeminiProcessor.model
-
+         
             # Run chain
-            output_concept = chain.run({"text": group_content})
+            output_concept = chain.invoke({"text": group_content})
             # Validate JSON and keep cleaned JSON Output
             cleaned_chain = self.clean_json_string(output_concept)
             if cleaned_chain:

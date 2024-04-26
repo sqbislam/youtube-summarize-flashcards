@@ -17,16 +17,16 @@ interface IFlashCards {
 export function FlashCards(props: IFlashCards) {
   const { keyConcepts, discardConcept } = props;
   return (
-    <Carousel className="w-full max-w-sm">
+    <Carousel className="w-full max-w-md">
       <CarouselContent>
         {keyConcepts.map((data, index) => (
           <CarouselItem key={index}>
             <div className="p-1">
-              <Card className="p-4">
+              <Card className="p-4 bg-secondary">
                 <CardTitle className="text-2xl font-semibold">
                   {Object.keys(data)[0]}
                 </CardTitle>
-                <CardContent className="flex aspect-square text-start p-2">
+                <CardContent className="flex aspect-square text-start p-2 overflow-y-auto max-h-[300px] w-full">
                   <span className="text-lg">{Object.values(data)[0]}</span>
                 </CardContent>
                 <CardFooter>

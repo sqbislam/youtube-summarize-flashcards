@@ -1,4 +1,5 @@
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
+import MarkdownPreview from "@uiw/react-markdown-preview";
 
 interface ISummaryCard {
   summary: string;
@@ -6,13 +7,14 @@ interface ISummaryCard {
 export function SummaryCard(props: ISummaryCard) {
   const { summary } = props;
   return (
-    <Card className="p-2">
+    <Card className="py-2">
       <CardTitle>Summary</CardTitle>
-      <CardContent className="mt-4">
-        <p
-          dangerouslySetInnerHTML={{ __html: summary }}
-          className="text-start"
-        ></p>
+      <CardContent className="mt-4 p-0 lg:px-2">
+        <MarkdownPreview
+          source={summary}
+          style={{ padding: 16 }}
+          className="text-start bg-secondary text-gray-800 dark:text-inherit"
+        />
       </CardContent>
     </Card>
   );

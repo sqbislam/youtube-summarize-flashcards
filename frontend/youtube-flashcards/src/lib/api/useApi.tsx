@@ -45,7 +45,7 @@ const useAPI = () => {
       currResponseDataType
     );
     if (videoID && valueInLS) {
-      setResponseData({ key_concepts: valueInLS });
+      setResponseData(valueInLS);
       return true;
     }
     return false;
@@ -100,7 +100,7 @@ const useAPI = () => {
             ];
             setValueInLocalStorage(
               videoID as any,
-              keyConcepts,
+              { key_concepts: keyConcepts },
               currResponseDataType
             );
             setResponseData({ key_concepts: keyConcepts });

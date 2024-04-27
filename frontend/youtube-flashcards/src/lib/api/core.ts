@@ -1,5 +1,5 @@
 export const apiCore = {
-  url: import.meta.env.VITE_BACKEND_API_PATH,
+  url: import.meta.env.VITE_PRODUCTION_BACKEND_API_PATH,
   headers() {
     return {
       "Cache-Control": "no-cache",

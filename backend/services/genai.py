@@ -180,7 +180,9 @@ class YoutubeProcessor:
         # Optimize sample size given no input
         if sample_size == 0:
             sample_size = len(documents) // 5
-            if verbose: logging.info(f"No sample size specified. Setting number of documents per sample as 5. Sample Size: {sample_size}")
+            if(len(documents) <= 5):
+                sample_size=len(documents)
+            if verbose: logging.info(f"No sample size specified. Setting number of documents per sample as 5. Documents: {len(documents)} Sample Size: {sample_size}")
 
         # Find number of documents in each group
         num_docs_per_group = len(documents) // sample_size + (len(documents) % sample_size > 0)

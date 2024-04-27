@@ -50,4 +50,4 @@ def extract_json_objects(string):
         else:
             break
             
-    return json_object_str + "}"
+    return json_object_str[:len(json_object_str)-1] + "}"

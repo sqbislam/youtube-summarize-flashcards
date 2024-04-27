@@ -17,7 +17,11 @@ export function isValidYoutubeLink(link:string){
     }
     return [undefined, false];
 }
-
+export function getYoutubeVideoID(link:string){
+    const p =/.*(?:youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=)([^#\&\?]*).*/
+    const match = link.match(p);
+    return (match&&match[1].length==11)? match[1] : false;
+}
 export function formatTime(seconds:number) {
     if (typeof seconds !== 'number' || isNaN(seconds) || seconds < 0) {
         return 'Invalid input';
